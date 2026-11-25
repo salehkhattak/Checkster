@@ -24,19 +24,19 @@ export const PROBLEMS: { id: ProblemId; title: Tx; line: Tx; ready: boolean; dan
     id: "leak",
     title: { en: "Pani ka leak", ur: "پانی کا رساؤ" },
     line: { en: "Dripping pipes, taps, tanks", ur: "ٹپکتے پائپ، نلکے، ٹینکی" },
-    ready: false,
+    ready: true,
   },
   {
     id: "crack",
     title: { en: "Darar / crack", ur: "دیوار میں دراڑ" },
     line: { en: "Cracks in walls or plaster", ur: "دیوار یا پلستر میں دراڑیں" },
-    ready: false,
+    ready: true,
   },
   {
     id: "roof",
     title: { en: "Chhat tapakna", ur: "چھت ٹپکنا" },
     line: { en: "Roof leaking in the rain", ur: "بارش میں چھت سے پانی" },
-    ready: false,
+    ready: true,
   },
   {
     id: "wiring",

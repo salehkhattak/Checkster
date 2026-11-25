@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Nunito, Noto_Nastaliq_Urdu } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { LangProvider } from "@/lib/i18n";
+import { AuthProvider } from "@/lib/auth-context";
 import "./globals.css";
 
 const nunito = Nunito({
@@ -29,7 +30,9 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
   return (
     <html lang="en" dir="ltr">
       <body className={`${nunito.variable} ${nastaliq.variable} font-sans antialiased`}>
-        <LangProvider>{children}</LangProvider>
+        <LangProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </LangProvider>
         <Analytics />
       </body>
     </html>
