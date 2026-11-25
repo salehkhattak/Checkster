@@ -26,6 +26,9 @@ __pycache__/
 .pytest_cache/
 .venv/
 
+# local runtime database & private uploads (never commit)
+backend/data/
+
 # vercel
 .vercel
 

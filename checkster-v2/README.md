@@ -1,10 +1,31 @@
 # Checkster — AI-Powered Home Inspection & Contractor Quote Auditing Platform
 
-**Tagline:** *Pehle samjhein, phir paise dein.* (Understand it before you pay.)
+> **Pehle samjhein, phir paise dein.** *(Understand it before you pay.)*
+
+![Next.js](https://img.shields.io/badge/Frontend-Next.js%2016%20%2B%20TypeScript-black)
+![FastAPI](https://img.shields.io/badge/Backend-FastAPI%20%2B%20Pydantic%20v2-009688)
+![Gemini](https://img.shields.io/badge/AI-Google%20Gemini%20(google--genai)-4285F4)
+![Languages](https://img.shields.io/badge/i18n-English%20%7C%20Urdu%20RTL%20%7C%20Roman%20Urdu-1fa855)
+![Tests](https://img.shields.io/badge/Tests-22%20Passing%20(pytest)-brightgreen)
 
 Checkster is an independent technical second opinion built for Pakistani homeowners facing common residential maintenance problems—damp walls (*seelan*), salt efflorescence (*shora*), concealed plumbing leaks, roof seepage, and plaster/structural cracks (*darar*). Before a homeowner agrees to expensive or surface-only repairs, Checkster analyses photographs of the issue, asks targeted diagnostic questions, estimates fair costs using traceable government labour benchmarks, extracts and audits contractor quotations line-by-line using deterministic Python rules, and connects homeowners with local tradespeople.
 
-> **Important Preliminary Guidance Notice:** All AI-generated diagnoses in Checkster are preliminary visual assessments intended to help homeowners ask informed questions. They are **not** certified structural or building engineering inspections. Any major structural crack or active electrical hazard requires an on-site qualified professional.
+### Quick Start (2 Terminals)
+
+```powershell
+# Terminal 1 — FastAPI Backend (http://localhost:8000)
+cd backend
+Copy-Item .env.example .env   # Add your Google AI Studio GEMINI_API_KEY
+pip install -r requirements.txt
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+# Terminal 2 — Next.js Frontend (http://localhost:3000)
+Copy-Item .env.example .env.local
+npm install
+npm run dev
+```
+
+> **Preliminary Guidance Notice:** All AI-generated diagnoses in Checkster are preliminary visual assessments intended to help homeowners ask informed questions. They are **not** certified structural or building engineering inspections. Any major structural crack or active electrical hazard requires an on-site qualified professional.
 
 ---
 
@@ -202,7 +223,8 @@ All AI interaction lives in **one reusable service layer**: [`backend/app/servic
 - **SDK:** Official Google Gen AI SDK (`google-genai`), using the async client (`client.aio.models.generate_content`). No OpenAI SDK or key is required.
 - **Model Verification:** Before selecting a default model, [`backend/scripts/list_models.py`](backend/scripts/list_models.py) queries `client.models.list()` for models supporting `generateContent` on the configured Google AI Studio key, followed by live responsiveness checks.
 - **Primary Model (`GEMINI_MODEL`):** `gemini-3.8-flash` (shorthand `3.8-flash` is automatically normalized by `_normalise_model()`). Supports fast multimodal image/PDF understanding and native JSON Schema structured outputs.
-- **Automatic Multi-Model Fallback Chain (`GEMINI_FALLBACK_MODEL`):** `gemini-3.7-flash,gemini-3.5-flash,gemini-3.1-flash-lite`. The SDK's internal retry loop is capped at `HttpRetryOptions(attempts=1)` so `GeminiService` controls retries directly—if `gemini-3.8-flash` experiences a temporary `503` demand spike or `404`, it fails over across the fallback chain within seconds instead of stalling.
+- **Zero-Delay Multi-Model Failover Chain (`GEMINI_FALLBACK_MODEL`):** `gemini-3.5-flash-lite,gemini-3.5-flash,gemini-3.7-flash,gemini-3.1-flash-lite`. The SDK's internal retry loop is capped at `HttpRetryOptions(attempts=1)` and `GeminiService` iterates across the model chain *before* sleeping—if the primary model hits a `429` free-tier quota limit or `503` demand spike, it immediately switches to the next available model within seconds.
+- **Live `.env` Hot-Reloading:** `GeminiService` automatically detects `backend/.env` changes on disk and rebuilds the `genai.Client` without requiring a server restart.
 - **Zero Hardcoding:** Changing `GEMINI_MODEL` in `backend/.env` updates every vision, coordinator, OCR, and explanation call across the entire platform without code changes.
 
 ### 4.2 How Multimodal Vision Inspection Works (`inspect_images`)
